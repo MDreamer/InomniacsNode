@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceRoot}",
+                "/home/maayand/.arduino15/packages/esp8266/hardware/esp8266/2.4.1/**",
+                "/home/maayand/.arduino15/packages/esp8266/tools/**",
+                "/home/maayand/ides/arduino-1.8.5/hardware/tools/**",
+                "/home/maayand/ides/arduino-1.8.5/libraries/**",
+                "/home/maayand/Documents/Arduino/hardware/tools/**",
+                "/home/maayand/Documents/Arduino/libraries/**"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
