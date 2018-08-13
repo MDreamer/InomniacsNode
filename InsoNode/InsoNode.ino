@@ -7,14 +7,14 @@ const uint16_t PixelCount = 6;
 const uint8_t PixelPin = 2;  // make sure to set this to the correct pin, ignored for Esp8266
 
 const uint8_t pinsAdyNum = 5; //The number of pins used for setting address
-uint8_t adyPin[pinsAdyNum] = {16,5,4,14,12};
+uint8_t adyPin[pinsAdyNum] = {16,5,4,12,14};
 
 //inits with number 99 so if the there is a faulty reading the node won't be 0
 uint8_t nodeAddress = 99;
 
 //on normal operation mode the Serial output should be disables. It slows the MCU and 
 //creates juttering in the LEDs
-const bool serialDebug = false;
+const bool serialDebug = true;
 
 //in udp wifi lib max buff size is 512. actually 24*24 is needed - might have to compromise for res
 const int udp_buff_size = 30;
@@ -47,7 +47,9 @@ int getNodeAddress()
   //sets all the digital address pin allocation to INPUT
   //Reads all the pins and shift left except the last one which just read and adds it
   int i=0;
+  //i= pinsAdyNum-1
   for (; i< pinsAdyNum-1; i++)
+  //for (; i >= 0; i--)
   {
     if (serialDebug)
     {
@@ -56,7 +58,7 @@ int getNodeAddress()
       Serial.print("..value:");
       Serial.println(digitalRead(adyPin[i]));
     }
-    tempNodeAdy = tempNodeAdy | digitalRead(adyPin[i]);
+    tempNodeAdy = tempNodeAdy | !digitalRead(adyPin[i]);
     tempNodeAdy = tempNodeAdy << 1;
   }
   if (serialDebug)
@@ -67,7 +69,7 @@ int getNodeAddress()
     Serial.println(digitalRead(adyPin[i]));
   }
 
-  tempNodeAdy = tempNodeAdy | digitalRead(adyPin[i]);
+  tempNodeAdy = tempNodeAdy | !digitalRead(adyPin[i]);
   
   return tempNodeAdy;
   //return 1;
