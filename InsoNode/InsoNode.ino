@@ -14,18 +14,20 @@ uint8_t nodeAddress = 99;
 
 //on normal operation mode the Serial output should be disables. It slows the MCU and 
 //creates juttering in the LEDs
-const bool serialDebug = true;
+const bool serialDebug = false;
 
-//in udp wifi lib max buff size is 512. actually 24*24 is needed - might have to compromise for res
-const int udp_buff_size = 30;
+//in udp wifi lib max buff size is 75. 25(noes)*3(RGB) is needed 
+const int udp_buff_size = 72;
 
 
 //const char* ssid = "Aussie Broadband 9970";
 //const char* password = "mufegireso";
 //const char* ssid = "Pretty Fly for a Wi-Fi";
 //const char* password = "highsecurity";
-const char* ssid = "Greyhaven 2";
-const char* password = "serenity is here";
+const char* ssid = "NETGEAR05";
+const char* password = "yellowhouse";
+//const char* ssid = "Greyhaven 2";
+//const char* password = "serenity is here";
 
 WiFiUDP Udp;
 unsigned int localUdpPort = 4210;  // local port to listen on
@@ -37,7 +39,7 @@ char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to sen
 
 // Uart method is good for the Esp-01 or other pin restricted modules
 // NOTE: These will ignore the PIN and use GPI02 pin with is D4 in NodeMCU LiLon V3
-NeoPixelBus<NeoRgbFeature, NeoEsp8266Uart400KbpsMethod> strip(PixelCount, PixelPin);
+NeoPixelBus<NeoRgbFeature, NeoEsp8266Uart800KbpsMethod> strip(PixelCount, PixelPin);
 
 //reads form 5 digital GPIOs and set the number of the node according to it
 int getNodeAddress()
@@ -166,11 +168,15 @@ void loop()
 
   if (getData)
   {
+    Serial.println("Sending data to LEDs...");
     //gets from the input udp stream the relevant node segment of data out of the whole packet
     //according to the nodes address
     RgbColor targetColor = RgbColor(incomingPacket[nodeAddress*3], 
                                     incomingPacket[(nodeAddress*3)+1],
                                     incomingPacket[(nodeAddress*3)+2]);
+    // RgbColor targetColor = RgbColor(255, 
+    //                                 0,
+    //                                 0);
 
     for (int i = 0; i < PixelCount; i++)
     {
