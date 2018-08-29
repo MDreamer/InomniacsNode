@@ -35,7 +35,11 @@ unsigned int localUdpPort = 4210;  // local port to listen on
 char incomingPacket[udp_buff_size];  // buffer for incoming packets
 char  replyPacket[] = "Hi there! Got the message :-)";  // a reply string to send back
 
+long data_timout = 5000;
+long lastDataTS = 0;
 
+int nodata_brightness = 0;    // how bright the LED is
+int nodata_fadeAmount = 2;    // how many points to fade the LED by
 
 // Uart method is good for the Esp-01 or other pin restricted modules
 // NOTE: These will ignore the PIN and use GPI02 pin with is D4 in NodeMCU LiLon V3
@@ -79,6 +83,18 @@ int getNodeAddress()
 
 void setup()
 {
+  //indicates the the nodes is on - red - getting electricity but no wifi yet
+  // this resets all the neopixels to an off state
+  strip.Begin();
+
+  RgbColor targetColor = RgbColor(255, 0, 0);
+  for (int i = 0; i < PixelCount; i++)
+  {
+    strip.SetPixelColor(i, targetColor);
+  }
+  strip.Show();
+  delay(3000);
+
   if (serialDebug)
   {
     Serial.begin(115200);
@@ -100,13 +116,28 @@ void setup()
     
   }
 
+  int fade_conn = 0;
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
   {
+    //flash blue to indicate trying to connected. Solid blue after connection
+
+    RgbColor targetColor = RgbColor(0, 0, fade_conn);
+    for (int i = 0; i < PixelCount; i++)
+    {
+      strip.SetPixelColor(i, targetColor);
+    }
+    strip.Show();
     delay(500);
+    
     if (serialDebug)
     {
       Serial.print(".");
+    }
+    fade_conn = fade_conn + 25;
+    if (fade_conn > 255)
+    {
+      fade_conn = 0;
     }
   }
 
@@ -138,7 +169,6 @@ void setup()
   }
   delay(1000);
 }
-
 
 void loop()
 {
@@ -184,6 +214,34 @@ void loop()
     }
 
     strip.Show();
+    lastDataTS = millis();  //reset last data receive time
+  }
+  else  //check if no command was received for more than 5 second start default animation
+  {
+    if (abs(millis() - lastDataTS) > data_timout)
+    {
+      // change the brightness for next time through the loop:
+      nodata_brightness = nodata_brightness + nodata_fadeAmount;
+
+      // reverse the direction of the fading at the ends of the fade:
+      if (nodata_brightness <= 0 || nodata_brightness >= 255) 
+      {
+        if (nodata_brightness >= 255)
+          nodata_brightness = 255;
+        else
+          nodata_brightness = 0;
+        nodata_fadeAmount = -nodata_fadeAmount;
+      }
+
+      RgbColor targetColor = RgbColor(nodata_brightness, nodata_brightness, nodata_brightness/8);
+
+      for (int i = 0; i < PixelCount; i++)
+      {
+        strip.SetPixelColor(i, targetColor);
+      }
+
+      strip.Show();
+    }
   }
     
   delay(10);  //up to 100Hz
