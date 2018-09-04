@@ -1,5 +1,5 @@
 #include <NeoPixelBus.h>
-#define colorSaturation 128
+//#define colorSaturation 128
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
@@ -12,12 +12,12 @@ uint8_t adyPin[pinsAdyNum] = {16,5,4,12,14};
 //inits with number 99 so if the there is a faulty reading the node won't be 0
 uint8_t nodeAddress = 99;
 
-//on normal operation mode the Serial output should be disables. It slows the MCU and 
+//on normal operation mode the Serial output should be disabled. It slows the MCU and 
 //creates juttering in the LEDs
-const bool serialDebug = false;
+#define serialDebug false
 
 //in udp wifi lib max buff size is 75. 25(noes)*3(RGB) is needed 
-const int udp_buff_size = 72;
+const int udp_buff_size = 90;
 
 
 //const char* ssid = "Aussie Broadband 9970";
@@ -100,7 +100,7 @@ void setup()
     Serial.begin(115200);
     Serial.println();
   }
-  
+
   //sets all the digital address pin allocation to INPUT
   for (int i=0; i< pinsAdyNum; i++)
   {
@@ -183,7 +183,10 @@ void loop()
     }
     int len = Udp.read(incomingPacket, udp_buff_size);
     getData = true;
-    Serial.printf("Received %d data bytes in the packet. ", len);
+    if (serialDebug)
+    {
+      Serial.printf("Received %d data bytes in the packet. ", len);
+    }
     if (len > 0)
     {
       incomingPacket[len] = 0;
@@ -198,7 +201,11 @@ void loop()
 
   if (getData)
   {
-    Serial.println("Sending data to LEDs...");
+    if (serialDebug)
+    {
+      Serial.println("Sending data to LEDs...");
+    }
+    
     //gets from the input udp stream the relevant node segment of data out of the whole packet
     //according to the nodes address
     RgbColor targetColor = RgbColor(incomingPacket[nodeAddress*3], 
