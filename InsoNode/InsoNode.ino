@@ -1,5 +1,5 @@
 #include <NeoPixelBus.h>
-//#define colorSaturation 128
+#define colorSaturation 128
 #include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 
@@ -47,7 +47,7 @@ NeoPixelBus<NeoRgbFeature, NeoEsp8266Uart800KbpsMethod> strip(PixelCount, PixelP
 
 //reads form 5 digital GPIOs and set the number of the node according to it
 int getNodeAddress()
-{  
+{
   uint8_t tempNodeAdy = 0;
   
   //sets all the digital address pin allocation to INPUT
